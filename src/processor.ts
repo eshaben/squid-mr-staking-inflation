@@ -16,6 +16,9 @@ const processor = new SubstrateBatchProcessor()
     })
     .addEvent("ParachainStaking.Rewarded")
 
+processor.setBlockRange({ from: 0, to: 1541799 });
+
+
 type Item = BatchProcessorItem<typeof processor>
 type Ctx = BatchContext<Store, Item>
 
@@ -31,13 +34,13 @@ async function getRewards(ctx: Ctx): Promise<Reward[]> {
         if (item.name === "ParachainStaking.Rewarded") {
   
           const event = new ParachainStakingRewardedEvent(ctx, item.event);
-          let balance;
-          let account: string;
+          let balance = 0n;
+          let account: string = '';
   
           if (event.isV49){
             account = toHex(event.asV49[0]);
             balance = event.asV49[1];
-          } else {
+          } else if (event.isV1300) {
             account = toHex(event.asV1300.account);
             balance = event.asV1300.rewards;
           }
